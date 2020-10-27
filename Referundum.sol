@@ -239,8 +239,16 @@ contract Voting {
         require(msg.value >= 10**17, "not enough ethers");
         uint256 nbOf4WeekPeriods = msg.value / 10**17;
         uint256 validity = block.timestamp + nbOf4WeekPeriods * 4 weeks;
-        members[msg.sender].delayRegistration = validity;
+        if (members[msg.sender].delayRegistration < block.timestamp) {
+            members[msg.sender].delayRegistration = validity;
+        } else {
+            members[msg.sender].delayRegistration += nbOf4WeekPeriods * 4 weeks;
+        }
         superAdmin.transfer(msg.value);
-        emit Registration(msg.sender, msg.value, validity);
+        emit Registration(
+            msg.sender,
+            msg.value,
+            members[msg.sender].delayRegistration
+        );
     }
 }
